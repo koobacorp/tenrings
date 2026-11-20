@@ -1,0 +1,60 @@
+# Builds TENRINGS for macOS (Universal: Apple Silicon + Intel), runs tests + pluginval, ad-hoc signs, uploads zip.
+name: macOS build
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "macOS runner (macos-15 or macos-15-intel)"
+        default: "macos-15"
+  push:
+    branches: [ main ]
+jobs:
+  build-macos:
+    runs-on: ${{ inputs.runner || 'macos-15' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch JUCE 8.0.4
+        run: git clone --depth 1 --branch 8.0.4 https://github.com/juce-framework/JUCE.git JUCE
+      - name: Configure (Universal binary)
+        run: >
+          cmake -S . -B build -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+          -DTENRINGS_BUILD_TOOLS=ON
+      - name: Build
+        run: cmake --build build --config Release --parallel 4 -- -quiet
+      - name: Tests (engine + every control)
+        run: |
+          ctest --test-dir build -C Release --output-on-failure -V 2>&1 | tee test-log.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Strip + ad-hoc code sign
+        run: |
+          cd build/Tenrings_artefacts/Release
+          strip -x "VST3/TENRINGS.vst3/Contents/MacOS/TENRINGS"
+          codesign --force --deep --sign - --timestamp=none "VST3/TENRINGS.vst3"
+          codesign --verify --deep --strict "VST3/TENRINGS.vst3"
+          lipo -info "VST3/TENRINGS.vst3/Contents/MacOS/TENRINGS" | tee "$GITHUB_WORKSPACE/lipo.txt"
+          grep -q arm64 "$GITHUB_WORKSPACE/lipo.txt" && grep -q x86_64 "$GITHUB_WORKSPACE/lipo.txt"
+      - name: pluginval (strictness 10)
+        run: |
+          curl -sSL -o pluginval.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
+          unzip -q pluginval.zip
+          ./pluginval.app/Contents/MacOS/pluginval --strictness-level 10 --validate-in-process "build/Tenrings_artefacts/Release/VST3/TENRINGS.vst3" 2>&1 | tee pluginval-log.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Package
+        run: |
+          mkdir -p pkg/TENRINGS
+          cp -R "build/Tenrings_artefacts/Release/VST3/TENRINGS.vst3" pkg/TENRINGS/
+          cp scripts/install_mac.sh scripts/INSTALL.txt pkg/TENRINGS/ && chmod +x pkg/TENRINGS/install_mac.sh
+          cd pkg && zip -9 -r -y -q "$GITHUB_WORKSPACE/TENRINGS-macOS-universal-v1.2.zip" TENRINGS
+          stat -f%z "$GITHUB_WORKSPACE/TENRINGS-macOS-universal-v1.2.zip"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: TENRINGS-macOS-universal-v1.2
+          path: |
+            TENRINGS-macOS-universal-v1.2.zip
+            build/keyboard-v1.1.png
+            build/v12-*.png
+            test-log.txt
+            pluginval-log.txt

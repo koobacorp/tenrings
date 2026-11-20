@@ -1,0 +1,69 @@
+TENRINGS v1.2 - camera hand instrument (VST3, Mac, Apple Silicon + Intel)
+=======================================================================
+
+1) INSTALL
+   Double-click install_mac.sh (or run it in Terminal), OR copy TENRINGS.vst3 to:
+       ~/Library/Audio/Plug-Ins/VST3/
+   FL Studio: Options > Manage plugins > Find installed plugins (or "Find more plugins").
+   TENRINGS shows up as an instrument (Generator) by koobacorp. Add it to the Channel Rack.
+
+2) CAMERA PERMISSION
+   The first time the camera turns on, macOS asks if FL Studio may use the camera - click Allow.
+   If you clicked Don't Allow: System Settings > Privacy & Security > Camera > turn on FL Studio,
+   then restart FL. The status line at the bottom of TENRINGS tells you what is wrong.
+   If it says the host has no camera permission entry, macOS is not letting FL itself use any
+   camera - tell me and we will switch to the backup plan. Pads and MIDI still work meanwhile.
+   Tip: good light, both hands in frame. An iPhone as Continuity Camera often gives 60 fps.
+
+3) PLAY
+   Mode buttons: DRUM (orange), KEYBOARD (turquoise), LEAD (purple), STRINGS (green).
+   "Beige only" hides the camera picture (plain beige + hand outlines). Tracking keeps working.
+   - Drum: right hand jab high = snare, jab low = kick. Left hand: hold at far-left edge = hat roll
+     (FL tempo, 1/8 or 1/16), jab inside = perc/clap, jab up = open hat. Click pads with the mouse too.
+   - Keyboard: hands FLAT, palms down, like hovering over piano keys.
+     Angle the camera down and hold still briefly to learn your resting fingers.
+     Press one finger DOWN toward the desk = key on, lift = off.
+     Avoid a completely overhead/edge-on view where a dip cannot be seen. Slide the whole hand to shift notes.
+     Keys light independently; whole-hand drops are ignored (start with 1-2 fingers).
+   - Lead: move to a note and LAND (pause briefly) to select it, skipping passed notes.
+      right hand left/right = notes in key, shake = vibrato, lift = bend to next note.
+     Left hand up/down = volume, quick dip = retrigger. Needs both hands.
+   - Strings: make a string: touch both index fingertips together (a dotted line appears), pull them
+     apart to set its length and angle, then HOLD STILL a moment - it turns solid and colored. Move
+     your hands away; it stays. Up to 8 strings.
+     Play: swipe any fingertip through a string = pluck (faster = louder). Sweep a whole hand = strum.
+     Notes: each new string takes the next note of the Key/Scale (e.g. E minor: E, F#, G, A, ...).
+     "Length sets pitch" ON = longer string plays lower (still in key). Changing the key retunes them.
+     Undo string / Clear strings buttons. Strings are saved with your FL project.
+     Mouse: click a string = pluck, drag across = strum, Shift-drag (or right-drag) = draw a new string.
+     The built-in pluck rings out on its own; MIDI notes last 0.6 s so FL synths get a clean note.
+   Hand out of frame = that hand stops. The middle of the picture (your face) never plays
+   (in Strings only your fingertips can pluck, so strings may cross the middle).
+   For tighter feel set FL's audio buffer low (Options > Audio settings, e.g. 128-256 samples).
+
+4) HEAR SERUM (or any synth) LIVE WHILE YOU PLAY
+   Use ONE of these routes (not both, or you get double notes):
+
+   A) Plugin MIDI out (simplest, inside FL)
+      a. On Serum's channel: open its wrapper settings (gear icon) > MIDI input port = 1.
+      b. On TENRINGS' wrapper settings (gear icon) > MIDI output port = 1.
+      c. In TENRINGS turn "Built-in sound" OFF so you only hear Serum. Keep "Send MIDI" ON.
+      Now your hands play Serum live. Lead sends pitch bend + CC11 (expression):
+      set Serum's pitch-bend range to 2 semitones (3 if Easy 5-note + Minor is on) and map CC11 if you want the volume.
+
+   B) Virtual MIDI port "TENRINGS" (FL sees your hands like a USB keyboard)
+      a. In TENRINGS turn "Virtual port" ON (and "Send MIDI" OFF to avoid doubles).
+      b. FL: Options > MIDI settings > Input list: enable "TENRINGS".
+      c. Select the Serum channel in the Channel Rack - it plays like a keyboard. TENRINGS does not
+         echo incoming MIDI back out, so there is no feedback loop even if it also receives it.
+
+5) RECORD NOTES TO THE PIANO ROLL
+   - Route B (virtual port) records exactly like a hardware keyboard: select the Serum (or TENRINGS)
+     channel, click Record, choose "Notes" (or "Notes and automation"), play. Notes land in the piano roll.
+   - Route A: FL records notes arriving at the Serum channel from MIDI port 1 the same way on most
+     setups. If yours doesn't, use route B - it is the reliable keyboard-style path.
+   - Afterwards slide the whole clip a little earlier for camera delay, or quantize.
+   - Playback: notes in a pattern on the TENRINGS channel play its built-in sounds. Turn "Camera" OFF
+     during playback so your hands don't double the recorded part.
+
+Nothing is uploaded. The camera picture stays on your Mac.
